@@ -1,0 +1,158 @@
+﻿@using GaleriUygulamasi.Models
+
+@{
+    ViewBag.Title = "Galeri";
+
+    GaleriEntities context = new GaleriEntities();
+    var list = (from d in context.Dosyas
+                orderby d.KayitTarihi descending
+                select new
+                {
+                    d.Id,
+                    d.BoyutKisaltma,
+                    d.DosyaAdi,
+                    d.DosyaTipi,
+                    d.Ikon,
+                    d.Renk
+                }).ToList();
+}
+@section breadCrumbTitle{/Galeri Yönetimi}
+<link href="~/Content/Settings/file-list.css" rel="stylesheet" />
+<link href="~/Content/Settings/file-edit.css" rel="stylesheet" />
+
+<div class="container">
+    <div class="row">
+
+        @for (int i = 0; i < list.Count; i++)
+        {
+            <div class="col-lg-3 col-sm-6">
+                <div class="card hovercard">
+                    <div class="cardheader @list[i].Renk">
+                        <a href="#fileEditModal" onclick="funcGetFileDetail(@list[i].Id)" data-toggle="modal" class="btn btn-primary @list[i].Renk pull-right" title="Düzenle"><i class="fa fa-edit"></i></a>
+                    </div>
+                    <div class="avatar" style="color:#fff;">
+                        <i class="@list[i].Ikon @list[i].Renk card-circle-icon" style="font-size:85px"></i>
+                    </div>
+                    <div class="info">
+                        <div class="file-name">
+                            @list[i].DosyaAdi
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="bottom">
+                        <i class="fa fa-hdd-o pull-left"></i> @list[i].BoyutKisaltma
+                        <i class="@list[i].Ikon pull-right"></i>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+
+    </div>
+
+    <div class="modal" id="fileEditModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="file-content" style="margin-top:10px">
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-area" style="padding-top:15px;padding-right:15px">
+                                <form role="form">
+                                    <div class="form-group">
+                                        <label class="control-label"><i class="fa fa-file-text">&nbsp;&nbsp;<span id="orjinalAdi"></span></i></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label"><i class="fa fa-hdd-o">&nbsp;&nbsp;<span id="dosyaBoyutu"></span></i></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label"><i class="fa fa-file">&nbsp;&nbsp;<span id="dosyaTipi"></span></i></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Url Yolu : </label>
+                                        <input disabled class="form-control" id="urlYolu" style="font-size:20px;" value="www.wbsoftware.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Başlık : </label>
+                                        <input type="text" id="dosyaBaslik" class="form-control" placeholder="başlık..." required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Açıklama : </label>
+                                        <textarea class="form-control" id="dosyaAciklama" type="textarea" placeholder="açıklama..." rows="5"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="pull-left">
+                        <a id="btnOnizle" href="" target="_blank" class="btn btn-warning" style="width:120px;border-radius:40px;"><i class="fa fa-eye"></i>Ön izle</a>
+                    </div>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" style="width:120px;border-radius:40px;"><i class="fa fa-close"></i>Kapat</button>
+                        <button type="button" class="btn btn-success" onclick="funcUpdateFile()" style="width:120px;border-radius:40px;"><i class="fa fa-save"></i>Kaydet</button>
+                    </div>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div>
+
+<script src="~/Scripts/Settings/file-edit.js"></script>
+
+<script>
+
+    var tempDosyaId = 0;
+
+    function funcGetFileDetail(e) {
+        tempDosyaId = e;
+        $.ajax({
+            url: "/Home/GetFileDetailById?Id=" + e,
+            success: function (e) {
+                $("#orjinalAdi").html(e.DosyaAdi); // spann olduğu için html() kullanıldı
+                $("#dosyaBoyutu").html(e.BoyutKisaltma);
+                $("#dosyaTipi").html(e.DosyaTipi);
+                $("#urlYolu").val(e.UrlYolu);      // input yani text olduğu için val() kullanıldı
+                $("#dosyaBaslik").val(e.Baslik);
+                $("#dosyaAciklama").val(e.Aciklama);
+                $("#btnOnizle").attr("href", e.UrlYolu);
+                if (e.DosyaTipi.indexOf("image") != -1) {
+                    $(".file-content").html('<img class="img-responsive" src=' + e.UrlYolu + '/>')
+                } else if (e.DosyaTipi.indexOf("video") != -1 || e.DosyaTipi.indexOf("audio") != -1 || e.DosyaTipi.indexOf("pdf") != -1) {
+                    $(".file-content").html('<iframe src=' + e.UrlYolu + ' width="550" height="450"></iframe>')
+                }
+                else {
+                    $(".file-content").html('<i class="fa fa-file-o" style="font-size:400px;padding:70px;"></i>')
+                }
+            }
+        });
+
+    }
+
+    function funcUpdateFile() {
+
+        $.ajax({
+            method: "POST",
+            url: "/Home/UpdateFile",
+            data: { Id: tempDosyaId, Baslik: $("#dosyaBaslik").val(), Aciklama: $("#dosyaAciklama").val() },
+            success: function (e) {
+                if (e.hasError) {
+                    alert(e.Message);
+                } else {
+                    alert(e.Message);
+                    $("#fileEditModal").modal("hide");
+                }
+            }
+        });
+
+    }
+
+</script>

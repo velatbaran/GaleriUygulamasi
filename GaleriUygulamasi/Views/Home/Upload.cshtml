@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Upload";
+}
+@section breadCrumbTitle{/Dosya Yükle}
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/jquery.fileupload.js"></script>
+<script src="~/Scripts/jquery.iframe-transport.js"></script>
+<style>
+    .bar {
+        background-color: #0094ff;
+        height: 40px;
+    }
+
+    #fileList {
+        margin-top: 10px;
+    }
+
+    #fileUpload {
+        display: inline-block;
+    }
+
+    .btn {
+        border-radius: 0;
+    }
+
+    .file-part {
+        padding: 5px 25px 15px 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 2px rgba(0,0,0,.15);
+        background-color: #fff;
+    }
+
+    .upload-content {
+        margin-top: 15px;
+        padding: 20px;
+        background-color: #fff;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 2px rgba(0,0,0,.15);
+    }
+</style>
+
+<div class="row upload-content">
+    <button id="btnUpload" class="btn btn-success">Dosyaları Yükle</button>
+    <button class="btn btn-warning" onclick="$('#fileUpload').click()">Dosya Ekle</button>
+    <input type="file" multiple="multiple" id="fileUpload" style="display:none" />
+    <h5>Tüm Dosyaların İlerleyişi - Genel Yüzde</h5>
+    <em id="genelBoyut"></em>
+    <div class="progress" style="margin-bottom:5px;">
+        <div id="overBar" class="bar" style=" width :0%;">
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div id="fileList" class="hidden">
+        <h3>Dosya Listesi</h3>
+        <hr />
+        @*<div class="progress">
+                <div id="overBar" class="bar" style=" width : 20%;"> </div>
+            </div>*@
+    </div>
+</div>
+
+<script>
+    var barCount = 1;
+    $("#fileUpload").fileupload({
+        dataType: "json",
+        url: "/Home/FileUpload",
+        limitConcurrentUploads: 1, // ilk önce 1. bar daki dosya yüklenecek dha sonra sırayla diğerleri yüklenecek.Aynı anda 1 tane
+        sequentialUploads: true,
+        progressInterval: 100,  // 100 ms.
+        maxChunkSize: 10000,  //10000 byte = 1 kb
+        add: function (e, data) {
+            $("#fileList").removeClass("hidden");
+            var fileHtml = "";
+            fileHtml += "<div class='file-part'> <h5> Dosya Adı : " + data.files[0].name + "</h5>";
+            fileHtml += "<h5> Dosya Boyutu : " + bytesToSize(data.files[0].size, 2) + "</h5>";
+            fileHtml += '<div class="progress"><div class="bar" id="uploadingFile" style="width:0%;"></div> </div></div>';
+            $("#fileList").append(fileHtml);
+            $("#btnUpload").click(function () {
+                data.submit();
+            });
+            barCount = 1;
+        },
+        done: function (e, data) {
+            $("#loading").remove();
+            $(".bar:eq(" + barCount + ")").append("<span id='loading'>tamamlandı</span>.");
+            barCount++;
+        },
+        progressall: function (e, data) {
+            var yuzde = parseInt(data.loaded / data.total * 100);
+            $("#genelBoyut").html("<h5>Toplam Dosya Boyutu : " + bytesToSize(data.total, 2) + "</h5>");
+            $("#overBar").css("width", yuzde + "%");
+        },
+        progress: function (e, data) {
+            var yuzde = parseInt(data.loaded / data.total * 100);
+            $(".bar:eq(" + barCount + ")").css("width", yuzde + "%");
+            if (yuzde == 100) {
+                if ($("#loading")[0] != undefined) {
+                    $("#loading").remove();
+                    $(".bar:eq(" + barCount + ")").append("<span id='loading'>yükleniyor...</span>.");
+                } else {
+                    $(".bar:eq(" + barCount + ")").append("<span id='loading'>yükleniyor...</span>.");
+                }
+                
+            }
+        },
+    });
+
+    function bytesToSize(bytes, precision) {
+
+        var kiloByte = 1024;
+        var megabyte = kiloByte * 1024;
+        var gigabyte = megabyte * 1024;
+        var terabyte = gigabyte * 1024;
+
+        if ((bytes >= 0) & (bytes < kiloByte)) {
+            return bytes + '8';
+        }
+        else if ((bytes >= kiloByte) & (bytes < megabyte)) {
+            return (bytes / kiloByte).toFixed(precision) + 'KB';
+        }
+        else if ((bytes >= megabyte) & (bytes < gigabyte)) {
+            return (bytes / megabyte).toFixed(precision) + 'MB';
+        }
+        else if ((bytes >= gigabyte) & (bytes < terabyte)) {
+            return (bytes / gigabyte).toFixed(precision) + 'GB';
+        }
+        else if (bytes >= terabyte) {
+            return (bytes / terabyte).toFixed(precision) + 'TB';
+        }
+        else {
+            return bytes + '8';
+        }
+    }
+
+</script>
+
+
+

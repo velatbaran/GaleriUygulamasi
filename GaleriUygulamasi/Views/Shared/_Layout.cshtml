@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Galeri Uygulaması</title>
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/Settings/file-list.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="~/Scripts/modernizr-2.8.3.js"></script>
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f1f1;
+        }
+
+        .navbar-inverse {
+            background-color: #4a74e8;
+            box-shadow: 0 1px 1px rgba(0,0,0,.15);
+            border: none;
+        }
+
+        .breadcrumb {
+            background-color: #ffffff;
+            box-shadow: 0 1px 1px rgba(0,0,0,.15);
+            padding-left: 8%;
+        }
+
+            .breadcrumb li a {
+                font-size: 15px;
+                text-decoration: none
+            }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand" style="color:#fff">Galeri Uygulaması</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/Home/Upload" style="color:#fff">Dosya Yükle</a></li>
+                    <li><a href="/Home/Galeri" style="color:#fff">Galeri Yönetimi</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">@RenderSection("breadCrumbTitle",required:false)</a></li>
+        </ol>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

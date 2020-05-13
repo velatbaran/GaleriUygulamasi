@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "AjaxJson";
+}
+
+<input type="text" id="adi" style="margin-top:15px"/>
+<button onclick="gonder()">Gönder</button>
+
+<script>
+
+    function gonder() {
+
+        var ogrenci = { adi: $("#adi").val(), soyadi: "BARAN", no: 21, bolumid: 2, uyruk: "T.C." }
+
+        $.ajax({
+
+            url: "/Home/OgrenciKayit",
+            data: ogrenci,
+            success: function (e) {
+                var sonuc = e;
+            },
+            error: function (e) {
+
+            }
+        });
+
+    }
+
+</script>
+
